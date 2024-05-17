@@ -1,12 +1,27 @@
-const http = require('node:http')
+import express from 'express'
+import bodyParser from 'body-parser'
+import dotenv from 'dotenv'
+import connectDB from './config/db.js'
+// Routes imports
+import userRoutes from './routes/users.js'
+import authRoutes from './routes/auth.js'
 
-const port = process.env.PORT || 3000
+dotenv.config()
 
-const server = http.createServer((req, res) => {
-  console.log('Request received!', req.url)
-  res.end('Hello, world!')
-})
+const app = express()
 
-server.listen(port, () => {
-  console.log(`Server listening on port ${port}`)
+// Conectar a la base de datos
+connectDB()
+
+// Middleware
+app.use(bodyParser.json())
+
+// Rutas
+app.use('/api/users', userRoutes)
+app.use('/api/auth', authRoutes)
+
+// Puerto
+const PORT = process.env.PORT || 5000
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
