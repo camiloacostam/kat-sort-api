@@ -5,6 +5,8 @@ import connectDB from './config/db.js'
 // Routes imports
 import userRoutes from './routes/users.js'
 import authRoutes from './routes/auth.js'
+// Middleware
+import { corsMiddleware } from './middleware/cors.js'
 
 dotenv.config()
 
@@ -15,6 +17,7 @@ connectDB()
 
 // Middleware
 app.use(bodyParser.json())
+app.use(corsMiddleware())
 
 // Rutas
 app.use('/api/users', userRoutes)
