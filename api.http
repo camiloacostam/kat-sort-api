@@ -1,4 +1,4 @@
-###
+###Resigistro de Usuario
 POST http://localhost:5000/api/users/register
 Content-Type: application/json
 
@@ -16,4 +16,16 @@ Content-Type: application/json
 {
     "email": "camilo@example.com",
     "password": "1234567890"
+}
+
+###Crear Test
+POST http://localhost:5000/api/test/create
+Content-Type: application/json
+
+{
+    "testName": "Test de prueba",
+    "testType": "mixto",
+    "carts": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+    "categories": ["cat1", "cat2", "cat3"],
+    "questions": ["pregunta1", "pregunta2", "pregunta3"]
 }
