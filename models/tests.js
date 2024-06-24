@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const testSchema = new mongoose.Schema({
-  testName: { type: String, required: true },
-  testType: { type: String, required: true },
-  carts: { type: [String], required: true },
+  name: { type: String, required: true },
+  type: { type: String, required: true },
+  cards: { type: [String], required: true },
   categories: { type: [String], required: true },
   questions: { type: [String], required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

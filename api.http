@@ -23,9 +23,21 @@ POST http://localhost:5000/api/test/create
 Content-Type: application/json
 
 {
-    "testName": "Test de prueba",
-    "testType": "mixto",
-    "carts": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
-    "categories": ["cat1", "cat2", "cat3"],
-    "questions": ["pregunta1", "pregunta2", "pregunta3"]
+    "userId": "666093e0833305946ced845a",
+    "name": "Prueba de la prueba",
+    "type": "abierto",
+    "questions": [
+        "Pregunta 1",
+        "Pregunta 2"
+    ],
+    "cards": [
+        "Carta 1",
+        "Carta 2",
+        "Carta 3",
+        "Carta 4"
+    ],
+    "categories": [
+        "Categoria 1",
+        "Categoria 2"
+    ]
 }
