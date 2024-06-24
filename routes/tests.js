@@ -5,6 +5,6 @@ import authMiddleware from "../middleware/auth.js"; // Middleware para verificar
 const router = express.Router();
 
 router.post("/create", createTest);
-router.get("/tests/:userId", getUserTests);
+router.get("/:userId", getUserTests);
 
 export default router;

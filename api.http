@@ -41,3 +41,6 @@ Content-Type: application/json
         "Categoria 2"
     ]
 }
+
+###Get tests by user
+GET http://localhost:5000/api/test/666093e0833305946ced845a
