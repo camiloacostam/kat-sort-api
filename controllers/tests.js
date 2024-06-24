@@ -32,7 +32,7 @@ export const createTest = async (req, res) => {
 export const getUserTests = async (req, res) => {
   try {
     const { userId } = req.params;
-    const tests = await Test.find({ userId }, "_id testName");
+    const tests = await Test.find({ userId }, "_id testName createAt");
 
     res.status(200).json({ tests });
   } catch (error) {
