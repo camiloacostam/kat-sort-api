@@ -1,10 +1,14 @@
 import express from "express";
-import { createTest, getUserTests } from "../controllers/tests.js";
-import authMiddleware from "../middleware/auth.js"; // Middleware para verificar el token y añadir req.user
+import {
+  createTest,
+  getUserTests,
+  getTestByAccessLink,
+} from "../controllers/tests.js";
 
 const router = express.Router();
 
 router.post("/create", createTest);
 router.get("/:userId", getUserTests);
+router.get("/solve/:accessLink", getTestByAccessLink);
 
 export default router;

@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/users.js";
 import authRoutes from "./routes/auth.js";
 import testRoutes from "./routes/tests.js";
+import solutionRoutes from "./routes/solution.js";
 // Middleware
 import { corsMiddleware } from "./middleware/cors.js";
 
@@ -24,6 +25,7 @@ app.use(corsMiddleware());
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/test", testRoutes);
+app.use("/api/solution", solutionRoutes);
 
 // Puerto
 const PORT = process.env.PORT || 5000;

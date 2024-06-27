@@ -44,3 +44,24 @@ Content-Type: application/json
 
 ###Get tests by user
 GET http://localhost:5000/api/test/666093e0833305946ced845a
+
+###Get test by access link
+GET http://localhost:5000/api/test/solve/b7ba9b223c2e9b46570090fc91b9a843
+
+{
+    "userId": "666093e0833305946ced845a",
+    "name": "Prueba de la prueba",
+    "type": "abierto",
+    "solutionId": "666093e0833305946ced845a",
+    "userEmail": "email@email.com",
+    "answers": [
+       {
+        "questionId": "indexPregunta",
+        "answer": "Respuesta"
+       }
+    ],
+    "solution": {
+        "indexCegoria": ["carta1", "carta2", "carta3", "carta4"],
+    }
+   
+}
