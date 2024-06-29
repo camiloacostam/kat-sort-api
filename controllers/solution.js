@@ -24,7 +24,7 @@ export const startTest = async (req, res) => {
 
     res.status(201).json({
       message: "Test iniciado exitosamente",
-      solutionId: newSolution._id,
+      solution: newSolution,
     });
   } catch (error) {
     res.status(500).json({ message: "Error al iniciar el test", error });
