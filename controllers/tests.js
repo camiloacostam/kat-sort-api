@@ -1,13 +1,13 @@
-import Test from "../models/tests.js";
-import Solution from "../models/solution.js";
-import crypto from "crypto";
+import Test from '../models/tests.js'
+import Solution from '../models/solution.js'
+import crypto from 'crypto'
 
 export const createTest = async (req, res) => {
   try {
-    const { name, type, cards, categories, questions, userId } = req.body;
+    const { name, type, cards, categories, questions, userId } = req.body
     // Suponiendo que el middleware de autenticación ya añadió el usuario a req.user
 
-    const accessLink = crypto.randomBytes(16).toString("hex"); // Generar un identificador único
+    const accessLink = crypto.randomBytes(16).toString('hex') // Generar un identificador único
 
     const newTest = new Test({
       name,
@@ -16,68 +16,68 @@ export const createTest = async (req, res) => {
       categories,
       questions,
       userId,
-      accessLink,
-    });
+      accessLink
+    })
 
-    await newTest.save();
+    await newTest.save()
 
     res.status(201).json({
-      message: "Test creado exitosamente",
-      test: newTest,
-    });
+      message: 'Test creado exitosamente',
+      test: newTest
+    })
   } catch (error) {
-    res.status(500).json({ message: "Error al crear el test", error });
+    res.status(500).json({ message: 'Error al crear el test', error })
   }
-};
+}
 
 export const getUserTests = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const tests = await Test.find({ userId }, "id name accessLink createdAt");
+    const { userId } = req.params
+    const tests = await Test.find({ userId }, 'id name accessLink createdAt')
 
-    res.status(200).json({ tests });
+    res.status(200).json({ tests })
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener los tests", error });
+    res.status(500).json({ message: 'Error al obtener los tests', error })
   }
-};
+}
 
 export const getTestByAccessLink = async (req, res) => {
   try {
-    const { accessLink } = req.params;
+    const { accessLink } = req.params
     const test = await Test.findOne(
       { accessLink },
-      "id name type cards categories questions"
-    );
+      'id name type cards categories questions'
+    )
 
     if (!test) {
-      return res.status(404).json({ message: "Test no encontrado" });
+      return res.status(404).json({ message: 'Test no encontrado' })
     }
 
-    res.status(200).json(test);
+    res.status(200).json(test)
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener el test", error });
+    res.status(500).json({ message: 'Error al obtener el test', error })
   }
-};
+}
 
 export const getTestDetails = async (req, res) => {
   try {
-    const testId = req.params.testId;
+    const testId = req.params.testId
 
-    const test = await Test.findById(testId);
+    const test = await Test.findById(testId)
     if (!test) {
-      return res.status(404).json({ message: "Test not found" });
+      return res.status(404).json({ message: 'Test not found' })
     }
 
-    const solutions = await Solution.find({ testId });
+    const solutions = await Solution.find({ testId })
 
-    const totalOfSolutions = solutions.length;
+    const totalOfSolutions = solutions.length
     const totalOfCompleted = solutions.filter(
       (solution) => solution.completedAt !== null
-    ).length;
+    ).length
     const percentageOfCompleted =
       totalOfSolutions > 0
         ? ((totalOfCompleted / totalOfSolutions) * 100).toFixed(2)
-        : 0;
+        : 0
     const averageTimeOfCompleted =
       totalOfCompleted > 0
         ? (
@@ -93,23 +93,42 @@ export const getTestDetails = async (req, res) => {
             totalOfCompleted /
             (1000 * 60)
           ).toFixed(2)
-        : 0;
+        : 0
 
     // Obtener categorías del test
     const testCategories = test.categories.filter(
       (category) => category != null
-    );
+    )
 
     // Obtener categorías creadas en las soluciones
-    const createdCategories = solutions
-      .flatMap((solution) => solution.sort.map((s) => s.categoryIndex))
-      .filter((category) => category != null);
-    const uniqueCreatedCategories = [...new Set(createdCategories)];
+    // const createdCategories = solutions
+    //   .flatMap((solution) => solution.sort.map((s) => s.categoryIndex))
+    //   .filter((category) => category != null)
+    // const uniqueCreatedCategories = [...new Set(createdCategories)]
+    const uniqueCreatedCategories = new Set()
+    const predefinedCategories = new Set(
+      test.categories.filter(
+        (category) => category !== null && category !== 'Sin Categoría'
+      )
+    )
+
+    // Procesar todas las soluciones para identificar categorías creadas, excluyendo "Sin Categoría"
+    solutions.forEach((solution) => {
+      solution.sort.forEach((column) => {
+        if (
+          column.category !== 'Sin Categoría' &&
+          column.category !== null &&
+          !predefinedCategories.has(column.category)
+        ) {
+          uniqueCreatedCategories.add(column.category)
+        }
+      })
+    })
 
     // Combinar categorías del test y creadas en soluciones, sin duplicados
     const combinedCategories = [
-      ...new Set([...testCategories, ...uniqueCreatedCategories]),
-    ];
+      ...new Set([...testCategories, ...uniqueCreatedCategories])
+    ]
 
     const testDetail = {
       _id: test._id,
@@ -123,23 +142,33 @@ export const getTestDetails = async (req, res) => {
       percentageOfCompleted: percentageOfCompleted,
       averageTimeOfCompleted: averageTimeOfCompleted,
       cards: test.cards,
+      sorts: solutions.map((solution) => solution.sort),
       categories: combinedCategories,
-      numberOfCreatedCategories: uniqueCreatedCategories.length,
+      numberOfCreatedCategories: uniqueCreatedCategories.size,
       participants: solutions.map((solution) => {
-        const initialColumnId = "column-cards";
+        const initialColumnId = 'column-cards'
         const initialColumn = solution.sort.find(
           (s) => s.id === initialColumnId
-        );
-        const initialCardsCount = initialColumn
-          ? initialColumn.cards.length
-          : 0;
+        )
+        const initialCardsCount = initialColumn ? initialColumn.cards.length : 0
         const totalCards = solution.sort.reduce(
           (acc, s) => acc + s.cards.length,
           0
-        );
-        const movedCards = totalCards - initialCardsCount;
+        )
+        const movedCards = totalCards - initialCardsCount
         const movedCardsPercentage =
-          totalCards > 0 ? ((movedCards / totalCards) * 100).toFixed(2) : 0;
+          totalCards > 0 ? ((movedCards / totalCards) * 100).toFixed(2) : 0
+        const participantCreatedCategories = new Set(
+          solution.sort
+            .map((column) => column.category)
+            .filter((category) => {
+              return (
+                category !== 'Sin Categoría' &&
+                category !== null &&
+                !predefinedCategories.has(category)
+              )
+            })
+        )
 
         return {
           email: solution.userEmail,
@@ -150,26 +179,219 @@ export const getTestDetails = async (req, res) => {
                 (1000 * 60)
               ).toFixed(2)
             : null,
-          status: solution.completedAt ? "completed" : "incomplete",
-          numberOfCreatedCategories: [
-            ...new Set(solution.sort.map((s) => s.categoryIndex)),
-          ].filter((category) => category != null).length,
-          movedCardsPercentage: parseFloat(movedCardsPercentage),
-        };
+          status: solution.completedAt ? 'completed' : 'incomplete',
+          numberOfCreatedCategories: participantCreatedCategories.size,
+          movedCardsPercentage: parseFloat(movedCardsPercentage)
+        }
       }),
-      questions: test.questions.map((question) => ({
-        question: question.text,
+      questions: test.questions.map((question, index) => ({
+        question: question,
         answers: solutions.map((solution) => {
-          const answerObj = solution.answers.find(
-            (a) => a.questionId === question._id
-          );
-          return answerObj ? answerObj.answer : null;
-        }),
-      })),
-    };
+          const answerArr = solution.answers[index]
+          return answerArr ? answerArr : null
+        })
+      }))
+    }
 
-    res.status(200).json(testDetail);
+    res.status(200).json(testDetail)
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: error.message })
   }
-};
+}
+
+export const calculateGraph = async (req, res) => {
+  try {
+    const { sortData } = req.body
+
+    if (!sortData || !Array.isArray(sortData)) {
+      return res.status(400).json({ message: 'Invalid input' })
+    }
+    const cardGroups = {}
+
+    // Llenamos el objeto cardGroups
+    sortData.forEach((result, index) => {
+      result.forEach((sort) => {
+        sort.cards.forEach((card) => {
+          if (!cardGroups[card]) cardGroups[card] = {}
+          result.forEach((innerGroup) => {
+            innerGroup.cards.forEach((innerCard) => {
+              if (card !== innerCard) {
+                cardGroups[card][innerCard] =
+                  (cardGroups[card][innerCard] || 0) + 1
+              }
+            })
+          })
+        })
+      })
+    })
+
+    // Obtenemos los nombres de las cartas
+    const cardNames = Object.keys(cardGroups)
+
+    // Creamos la matriz de similitud
+    const matrix = cardNames.map((card) =>
+      cardNames.map((innerCard) => cardGroups[card][innerCard] || 0)
+    )
+
+    res.status(200).json({
+      cardNames,
+      matrix
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+export const getResultsAnalysis = async (req, res) => {
+  try {
+    const { testId } = req.params
+
+    const test = await Test.findById(testId)
+    const solutions = await Solution.find({ testId })
+
+    if (!test) {
+      return res.status(404).json({ message: 'Test not found' })
+    }
+
+    if (!solutions.length) {
+      return res.status(404).json({ message: 'No solutions found' })
+    }
+
+    // Filtrar soluciones completadas (donde completedAt no es null)
+    const completedSolutions = solutions.filter(
+      (solution) => solution.completedAt !== null
+    )
+
+    // Verificar si existen soluciones completadas
+    if (!completedSolutions.length) {
+      return res.status(404).json({ message: 'No completed solutions found' })
+    }
+
+    const cardsAnalysis = {}
+    const categoriesAnalysis = {}
+
+    completedSolutions.forEach((solution) => {
+      solution.sort.forEach((sort) => {
+        sort.cards.forEach((card) => {
+          // Análisis de Cartas
+          if (!cardsAnalysis[card]) {
+            cardsAnalysis[card] = {
+              cardName: card,
+              categories: {},
+              totalFrequency: 0
+            }
+          }
+
+          if (!cardsAnalysis[card].categories[sort.category]) {
+            cardsAnalysis[card].categories[sort.category] = {
+              count: 0,
+              solutions: new Set()
+            }
+          }
+
+          if (
+            !cardsAnalysis[card].categories[sort.category].solutions.has(
+              solution._id.toString()
+            )
+          ) {
+            cardsAnalysis[card].categories[sort.category].count++
+            cardsAnalysis[card].categories[sort.category].solutions.add(
+              solution._id.toString()
+            )
+          }
+
+          cardsAnalysis[card].totalFrequency++
+
+          // Análisis de Categorías
+          if (!categoriesAnalysis[sort.category]) {
+            categoriesAnalysis[sort.category] = {
+              categoryName: sort.category,
+              cards: {},
+              totalCards: 0
+            }
+          }
+
+          if (!categoriesAnalysis[sort.category].cards[card]) {
+            categoriesAnalysis[sort.category].cards[card] = {
+              frequency: 0
+            }
+          }
+
+          categoriesAnalysis[sort.category].cards[card].frequency++
+          categoriesAnalysis[sort.category].totalCards++
+        })
+      })
+    })
+
+    const CardAnalysisTableData = Object.values(cardsAnalysis).map((detail) => {
+      const categoriesArray = Object.keys(detail.categories).map(
+        (category) => ({
+          category,
+          frequency: detail.categories[category].count
+        })
+      )
+
+      return {
+        card: detail.cardName,
+        sortedInto: categoriesArray.length,
+        categories: categoriesArray,
+        totalFrequency: detail.totalFrequency
+      }
+    })
+
+    const CategoryAnalysisTableData = Object.values(categoriesAnalysis).map(
+      (detail) => {
+        const cardsArray = Object.keys(detail.cards).map((card) => ({
+          card,
+          frequency: detail.cards[card].frequency
+        }))
+
+        return {
+          category: detail.categoryName,
+          contains: `${cardsArray.length}`,
+          cards: cardsArray
+        }
+      }
+    )
+
+    const cardSet = new Set()
+
+    completedSolutions.forEach((solution) => {
+      solution.sort.forEach(({ cards }) => {
+        cards.forEach((card) => cardSet.add(card))
+      })
+    })
+
+    const similarityMatrix = {}
+    const cards = Array.from(cardSet)
+
+    // Initialize matrix
+    cards.forEach((card) => {
+      similarityMatrix[card] = {}
+      cards.forEach((otherCard) => {
+        similarityMatrix[card][otherCard] = 0
+      })
+    })
+
+    // Calculate similarity
+    completedSolutions.forEach((solution) => {
+      solution.sort.forEach(({ cards }) => {
+        for (let i = 0; i < cards.length; i++) {
+          for (let j = 0; j < cards.length; j++) {
+            if (i !== j) {
+              similarityMatrix[cards[i]][cards[j]]++
+            }
+          }
+        }
+      })
+    })
+
+    return res.status(200).json({
+      cardsAnalysis: CardAnalysisTableData,
+      categoriesAnalysis: CategoryAnalysisTableData,
+      similarityMatrix
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
