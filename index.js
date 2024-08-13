@@ -1,34 +1,30 @@
-import express from "express";
-import bodyParser from "body-parser";
-import dotenv from "dotenv";
-import connectDB from "./config/db.js";
+import express from 'express'
+import bodyParser from 'body-parser'
+import dotenv from 'dotenv'
+import connectDB from './config/db.js'
 // Routes imports
-import userRoutes from "./routes/users.js";
-import authRoutes from "./routes/auth.js";
-import testRoutes from "./routes/tests.js";
-import solutionRoutes from "./routes/solution.js";
+import userRoutes from './routes/users.js'
+import authRoutes from './routes/auth.js'
+import testRoutes from './routes/tests.js'
+import solutionRoutes from './routes/solution.js'
 // Middleware
-import { corsMiddleware } from "./middleware/cors.js";
+import { corsMiddleware } from './middleware/cors.js'
 
-dotenv.config();
+dotenv.config()
 
-const app = express();
+const app = express()
 
 // Conectar a la base de datos
-connectDB();
+connectDB()
 
 // Middleware
-app.use(bodyParser.json());
-app.use(corsMiddleware());
+app.use(bodyParser.json())
+app.use(corsMiddleware())
 
 // Rutas
-app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/test", testRoutes);
-app.use("/api/solution", solutionRoutes);
+app.use('/api/users', userRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/test', testRoutes)
+app.use('/api/solution', solutionRoutes)
 
-// Puerto
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+module.exports = app
