@@ -3,7 +3,8 @@ import cors from 'cors'
 const ACCEPTED_ORIGINS = [
   'http://localhost:8080',
   'http://localhost:5173',
-  'https://kat-sort.vercel.app/'
+  'https://kat-sort.vercel.app/',
+  'https://kat-sort-j1jcosfuh-camiloacostams-projects.vercel.app/'
 ]
 
 export const corsMiddleware = (acceptedOrigins = ACCEPTED_ORIGINS) =>
