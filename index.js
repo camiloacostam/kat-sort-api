@@ -27,4 +27,4 @@ app.use('/api/auth', authRoutes)
 app.use('/api/test', testRoutes)
 app.use('/api/solution', solutionRoutes)
 
-module.exports = app
+export default app
