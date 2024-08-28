@@ -20,8 +20,8 @@ connectDB()
 
 // Middleware
 app.use(bodyParser.json())
-// app.use(corsMiddleware())
-app.use(cors())
+app.use(corsMiddleware())
+// app.use(cors())
 
 // Rutas
 app.use('/api/users', userRoutes)
