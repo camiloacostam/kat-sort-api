@@ -199,47 +199,84 @@ export const getTestDetails = async (req, res) => {
   }
 }
 
-export const calculateGraph = async (req, res) => {
+export const getDendrogramData = async (req, res) => {
   try {
-    const { sortData } = req.body
+    const { testId } = req.params
 
-    if (!sortData || !Array.isArray(sortData)) {
-      return res.status(400).json({ message: 'Invalid input' })
+    // Filtrar soluciones completadas
+    const solutions = await Solution.find({
+      testId,
+      completedAt: { $ne: null }
+    })
+
+    if (!solutions.length) {
+      return res.status(404).json({ message: 'No valid solutions found' })
     }
-    const cardGroups = {}
 
-    // Llenamos el objeto cardGroups
-    sortData.forEach((result, index) => {
-      result.forEach((sort) => {
-        sort.cards.forEach((card) => {
-          if (!cardGroups[card]) cardGroups[card] = {}
-          result.forEach((innerGroup) => {
-            innerGroup.cards.forEach((innerCard) => {
-              if (card !== innerCard) {
-                cardGroups[card][innerCard] =
-                  (cardGroups[card][innerCard] || 0) + 1
-              }
-            })
-          })
+    let cardCategoryRelations = {}
+
+    // Analizar las relaciones entre cartas y categorías
+    solutions.forEach((solution) => {
+      solution.sort.forEach(({ category, cards }) => {
+        if (!cardCategoryRelations[category]) {
+          cardCategoryRelations[category] = new Set()
+        }
+        cards.forEach((card) => {
+          cardCategoryRelations[category].add(card)
         })
       })
     })
 
-    // Obtenemos los nombres de las cartas
-    const cardNames = Object.keys(cardGroups)
+    // Convertir las relaciones en una estructura jerárquica
+    const dendrogram = {
+      name: 'Root',
+      children: Object.keys(cardCategoryRelations).map((category) => ({
+        name: category,
+        children: Array.from(cardCategoryRelations[category]).map((card) => ({
+          name: card
+        }))
+      }))
+    }
 
-    // Creamos la matriz de similitud
-    const matrix = cardNames.map((card) =>
-      cardNames.map((innerCard) => cardGroups[card][innerCard] || 0)
-    )
-
-    res.status(200).json({
-      cardNames,
-      matrix
-    })
+    res.status(200).json({ dendrogram })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
+  // try {
+  //   const { sortData } = req.body
+  //   if (!sortData || !Array.isArray(sortData)) {
+  //     return res.status(400).json({ message: 'Invalid input' })
+  //   }
+  //   const cardGroups = {}
+  //   // Llenamos el objeto cardGroups
+  //   sortData.forEach((result, index) => {
+  //     result.forEach((sort) => {
+  //       sort.cards.forEach((card) => {
+  //         if (!cardGroups[card]) cardGroups[card] = {}
+  //         result.forEach((innerGroup) => {
+  //           innerGroup.cards.forEach((innerCard) => {
+  //             if (card !== innerCard) {
+  //               cardGroups[card][innerCard] =
+  //                 (cardGroups[card][innerCard] || 0) + 1
+  //             }
+  //           })
+  //         })
+  //       })
+  //     })
+  //   })
+  //   // Obtenemos los nombres de las cartas
+  //   const cardNames = Object.keys(cardGroups)
+  //   // Creamos la matriz de similitud
+  //   const matrix = cardNames.map((card) =>
+  //     cardNames.map((innerCard) => cardGroups[card][innerCard] || 0)
+  //   )
+  //   res.status(200).json({
+  //     cardNames,
+  //     matrix
+  //   })
+  // } catch (error) {
+  //   res.status(500).json({ message: error.message })
+  // }
 }
 
 export const getResultsAnalysis = async (req, res) => {

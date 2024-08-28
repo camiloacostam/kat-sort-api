@@ -4,7 +4,7 @@ import {
   getUserTests,
   getTestByAccessLink,
   getTestDetails,
-  calculateGraph,
+  getDendrogramData,
   getResultsAnalysis
 } from '../controllers/tests.js'
 
@@ -14,7 +14,7 @@ router.post('/create', createTest)
 router.get('/:userId', getUserTests)
 router.get('/solve/:accessLink', getTestByAccessLink)
 router.get('/details/:testId', getTestDetails)
-router.post('/details/dendrogram', calculateGraph)
+router.post('/details/dendrogram', getDendrogramData)
 router.get('/details/analysis/:testId', getResultsAnalysis)
 
 export default router
