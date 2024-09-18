@@ -30,6 +30,39 @@ export const createTest = async (req, res) => {
   }
 }
 
+export const editTestName = async (req, res) => {
+  const { testId } = req.params
+  const { name } = req.body
+
+  try {
+    const updatedTest = await Test.findByIdAndUpdate(
+      testId,
+      { name: name, updatedAt: new Date() },
+      { new: true }
+    )
+
+    if (!updatedTest) {
+      return res.status(404).json({ message: 'Test no encontrado' })
+    }
+
+    res.status(200).json({
+      message: 'Nombre del test actualizado',
+      test: updatedTest
+    })
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Error actualizando la prueba', error })
+  }
+}
+
+export const deleteTest = async (req, res) => {
+  const { testId } = req.params
+  try {
+    const test = await Test.findById(testId)
+  } catch (error) {}
+}
+
 export const getUserTests = async (req, res) => {
   try {
     const { userId } = req.params

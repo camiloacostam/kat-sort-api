@@ -28,7 +28,7 @@ export const loginUser = async (req, res) => {
         id: user._id,
         email: user.email,
         name: user.name,
-        lastName: user.lastName
+        lastName: user.last_name
       }
     })
   } catch (error) {
