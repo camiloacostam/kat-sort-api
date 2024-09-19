@@ -6,7 +6,9 @@ import {
   getTestDetails,
   getDendrogramData,
   getResultsAnalysis,
-  editTestName
+  editTestName,
+  addIsActiveToAllTests,
+  softDeleteTest
 } from '../controllers/tests.js'
 
 const router = express.Router()
@@ -21,6 +23,8 @@ router.get('/details/dendrogram/:testId', getDendrogramData)
 router.get('/details/analysis/:testId', getResultsAnalysis)
 // Update Routes
 router.patch('/edit/:testId', editTestName)
+router.patch('/add-is-active', addIsActiveToAllTests)
+router.patch('/:id/delete', softDeleteTest)
 // Delete Routes
 
 export default router

@@ -56,11 +56,30 @@ export const editTestName = async (req, res) => {
   }
 }
 
-export const deleteTest = async (req, res) => {
-  const { testId } = req.params
+export const softDeleteTest = async (req, res) => {
+  const { id } = req.params // Obtenemos el ID del test desde los parámetros de la URL
+
   try {
-    const test = await Test.findById(testId)
-  } catch (error) {}
+    // Buscar el test por su ID y actualizar el campo isActive a false
+    const updatedTest = await Test.findByIdAndUpdate(
+      id,
+      { isActive: false, updatedAt: new Date() }, // Seteamos isActive a false y actualizamos updatedAt
+      { new: true } // Devolvemos el documento actualizado
+    )
+
+    if (!updatedTest) {
+      return res.status(404).json({ message: 'Test no encontrado' })
+    }
+
+    return res.status(200).json({
+      message: 'Test desactivado exitosamente (soft delete)',
+      updatedTest
+    })
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Error desactivando el test', error })
+  }
 }
 
 export const getUserTests = async (req, res) => {
@@ -275,41 +294,6 @@ export const getDendrogramData = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
-  // try {
-  //   const { sortData } = req.body
-  //   if (!sortData || !Array.isArray(sortData)) {
-  //     return res.status(400).json({ message: 'Invalid input' })
-  //   }
-  //   const cardGroups = {}
-  //   // Llenamos el objeto cardGroups
-  //   sortData.forEach((result, index) => {
-  //     result.forEach((sort) => {
-  //       sort.cards.forEach((card) => {
-  //         if (!cardGroups[card]) cardGroups[card] = {}
-  //         result.forEach((innerGroup) => {
-  //           innerGroup.cards.forEach((innerCard) => {
-  //             if (card !== innerCard) {
-  //               cardGroups[card][innerCard] =
-  //                 (cardGroups[card][innerCard] || 0) + 1
-  //             }
-  //           })
-  //         })
-  //       })
-  //     })
-  //   })
-  //   // Obtenemos los nombres de las cartas
-  //   const cardNames = Object.keys(cardGroups)
-  //   // Creamos la matriz de similitud
-  //   const matrix = cardNames.map((card) =>
-  //     cardNames.map((innerCard) => cardGroups[card][innerCard] || 0)
-  //   )
-  //   res.status(200).json({
-  //     cardNames,
-  //     matrix
-  //   })
-  // } catch (error) {
-  //   res.status(500).json({ message: error.message })
-  // }
 }
 
 export const getResultsAnalysis = async (req, res) => {
@@ -463,5 +447,25 @@ export const getResultsAnalysis = async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
+  }
+}
+
+// Endpoint para agregar isActive a todos los tests existentes
+export const addIsActiveToAllTests = async (req, res) => {
+  try {
+    // Actualizar todos los documentos que no tengan el campo isActive
+    const result = await Test.updateMany(
+      { isActive: { $exists: false } }, // Condición: solo documentos sin isActive
+      { $set: { isActive: true } } // Añadimos isActive con valor true
+    )
+
+    return res.status(200).json({
+      message: 'Campo isActive agregado a todos los tests',
+      result
+    })
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Error actualizando los tests', error })
   }
 }
