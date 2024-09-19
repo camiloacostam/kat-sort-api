@@ -449,23 +449,3 @@ export const getResultsAnalysis = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
-
-// Endpoint para agregar isActive a todos los tests existentes
-export const addIsActiveToAllTests = async (req, res) => {
-  try {
-    // Actualizar todos los documentos que no tengan el campo isActive
-    const result = await Test.updateMany(
-      { isActive: { $exists: false } }, // Condición: solo documentos sin isActive
-      { $set: { isActive: true } } // Añadimos isActive con valor true
-    )
-
-    return res.status(200).json({
-      message: 'Campo isActive agregado a todos los tests',
-      result
-    })
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: 'Error actualizando los tests', error })
-  }
-}
