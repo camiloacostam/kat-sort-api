@@ -85,7 +85,10 @@ export const softDeleteTest = async (req, res) => {
 export const getUserTests = async (req, res) => {
   try {
     const { userId } = req.params
-    const tests = await Test.find({ userId }, 'id name accessLink createdAt')
+    const tests = await Test.find(
+      { userId, isActive: true },
+      'id name isActive accessLink createdAt'
+    )
 
     res.status(200).json({ tests })
   } catch (error) {
@@ -97,8 +100,8 @@ export const getTestByAccessLink = async (req, res) => {
   try {
     const { accessLink } = req.params
     const test = await Test.findOne(
-      { accessLink },
-      'id name type cards categories questions'
+      { accessLink, isActive: true },
+      'id name type isActive cards categories questions'
     )
 
     if (!test) {
@@ -115,7 +118,8 @@ export const getTestDetails = async (req, res) => {
   try {
     const testId = req.params.testId
 
-    const test = await Test.findById(testId)
+    const test = await Test.findOne({ _id: testId, isActive: true })
+
     if (!test) {
       return res.status(404).json({ message: 'Test not found' })
     }
@@ -189,6 +193,7 @@ export const getTestDetails = async (req, res) => {
       accessLink: test.accessLink,
       createdAt: test.createdAt,
       completedAt: test.completedAt,
+      isActive: test.isActive,
       totalOfSolutions: totalOfSolutions,
       totalOfCompleted: totalOfCompleted,
       percentageOfCompleted: percentageOfCompleted,
