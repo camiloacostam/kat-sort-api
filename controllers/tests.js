@@ -156,11 +156,6 @@ export const getTestDetails = async (req, res) => {
       (category) => category != null
     )
 
-    // Obtener categorías creadas en las soluciones
-    // const createdCategories = solutions
-    //   .flatMap((solution) => solution.sort.map((s) => s.categoryIndex))
-    //   .filter((category) => category != null)
-    // const uniqueCreatedCategories = [...new Set(createdCategories)]
     const uniqueCreatedCategories = new Set()
     const predefinedCategories = new Set(
       test.categories.filter(
