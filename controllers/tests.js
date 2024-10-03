@@ -181,6 +181,24 @@ export const getTestDetails = async (req, res) => {
       ...new Set([...testCategories, ...uniqueCreatedCategories])
     ]
 
+    // Obtener comentarios del test
+    // const comments = solutions.map((solution) => (
+
+    // ))
+
+    const testComments = combinedCategories.map((category) => {
+      const categoryComments = solutions.map((solution) => {
+        // solution.sort.find((sort) => sort.category === category)
+        return solution.sort.find((sort) => sort.category === category)?.comment
+      })
+      return {
+        category: category,
+        comments: categoryComments.filter(
+          (comment) => comment !== undefined && comment !== null
+        )
+      }
+    })
+
     const testDetail = {
       _id: test._id,
       name: test.name,
@@ -242,7 +260,8 @@ export const getTestDetails = async (req, res) => {
           const answerArr = solution.answers[index]
           return answerArr ? answerArr : null
         })
-      }))
+      })),
+      comments: testComments
     }
 
     res.status(200).json(testDetail)
